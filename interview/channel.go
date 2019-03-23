@@ -33,6 +33,7 @@ func PrintIntInTwoChannel() {
 		}
 
 	}()
+	//主线控制打印总数
 	for i := 1; i < maxInt; i++ {
 		if i%2 == 0 {
 			isEven <- true
