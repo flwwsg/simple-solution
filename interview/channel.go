@@ -3,47 +3,27 @@ package interview
 //启动两个线程, 一个输出 1,3,5,7…99, 另一个输出 2,4,6,8…100 最后 STDOUT 中按序输出 1,2,3,4,5…100
 
 func PrintIntInTwoChannel() {
-	maxInt := 101
-	//打印偶数
-	isEven := make(chan bool)
-	//打印奇数
-	isOdd := make(chan bool)
-	res := make(chan int)
+	num := make(chan int)
+	exit := make(chan int)
 	go func() {
-		i := 0
-		for {
-			select {
-			case <-isEven:
-				i += 2
-				println(i)
-				res <- i
-			}
+		for i := 1; i < 101; i++ {
+			//打印奇数
+			println("g1:", <-num)
+			i++
+			num <- i
+		}
+	}()
+	go func() {
+		defer func() {
+			close(num)
+			close(exit)
+		}()
+		for i := 0; i < 100; i++ {
+			i++
+			num <- i
+			println("g2:", <-num)
 		}
 
 	}()
-	go func() {
-		i := 1
-		for {
-			select {
-			case <-isOdd:
-				println(i)
-				i += 2
-				res <- i
-			}
-		}
-
-	}()
-	//主线控制打印总数
-	for i := 1; i < maxInt; i++ {
-		if i%2 == 0 {
-			isEven <- true
-		} else {
-			isOdd <- true
-		}
-		//等待结果
-		select {
-		case <-res:
-
-		}
-	}
+	<-exit
 }
